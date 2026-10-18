@@ -6,3 +6,5 @@ Download the .zip file, extract it and keep both .ps1 and .cmd files together in
 
 **DO NOT CHANGE THE .ps1 FILE NAME.**
 **KEEP BOTH FILES TOGETHER IN THE SAME FOLDER**
+
+*Made with Codex.*
