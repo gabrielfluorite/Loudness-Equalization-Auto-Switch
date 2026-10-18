@@ -339,7 +339,144 @@ function Instantaneo($raiz) {
  return $estados
 }
 
+function NotificarLoudness([bool]$ativado) {
+ $appId = 'LoudnessEqualization.Notifications'
+ $programas = [Environment]::GetFolderPath('Programs')
+ $atalho = Join-Path $programas 'Loudness Equalization.lnk'
+
+ # Registrar a identidade usando um atalho do menu Iniciar.
+ if (-not (Test-Path -LiteralPath $atalho)) {
+  if (-not ('IdentidadeLoudness' -as [type])) {
+   Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+
+public static class IdentidadeLoudness
+{
+    [StructLayout(LayoutKind.Sequential)]
+    struct Chave
+    {
+        public Guid formato;
+        public uint numero;
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 24)]
+    struct Valor
+    {
+        [FieldOffset(0)] public ushort tipo;
+        [FieldOffset(8)] public IntPtr texto;
+    }
+
+    [ComImport]
+    [Guid("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    interface IPropriedades
+    {
+        void GetCount(out uint quantidade);
+        void GetAt(uint indice, out Chave chave);
+        void GetValue(ref Chave chave, out Valor valor);
+        void SetValue(ref Chave chave, ref Valor valor);
+        void Commit();
+    }
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode,
+        PreserveSig = false)]
+    static extern void SHGetPropertyStoreFromParsingName(
+        string caminho, IntPtr contexto, uint flags,
+        ref Guid interfaceId, out IPropriedades propriedades);
+
+    public static void Registrar(string caminho, string appId)
+    {
+        Guid iid = new Guid("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99");
+        IPropriedades propriedades = null;
+        Valor valor = new Valor();
+
+        try
+        {
+            SHGetPropertyStoreFromParsingName(
+                caminho, IntPtr.Zero, 2, ref iid, out propriedades);
+
+            Chave chave = new Chave {
+                formato = new Guid("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3"),
+                numero = 5
+            };
+
+            valor.tipo = 31;
+            valor.texto = Marshal.StringToCoTaskMemUni(appId);
+
+            propriedades.SetValue(ref chave, ref valor);
+            propriedades.Commit();
+        }
+        finally
+        {
+            if (valor.texto != IntPtr.Zero)
+                Marshal.FreeCoTaskMem(valor.texto);
+
+            if (propriedades != null)
+                Marshal.ReleaseComObject(propriedades);
+        }
+    }
+}
+'@
+  }
+
+  $shell = New-Object -ComObject WScript.Shell
+  $link = $shell.CreateShortcut($atalho)
+  $link.TargetPath = "$env:WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe"
+  $link.Arguments = '-NoLogo -NoProfile -STA -ExecutionPolicy Bypass -File "' + $PSCommandPath + '"'
+  $link.WorkingDirectory = $PSScriptRoot
+  $link.Description = 'Alternar Loudness Equalization'
+  $link.Save()
+
+  try {
+   [IdentidadeLoudness]::Registrar($atalho, $appId)
+  }
+  catch {
+   Remove-Item -LiteralPath $atalho -ErrorAction SilentlyContinue
+   throw
+  }
+  finally {
+   [void][Runtime.InteropServices.Marshal]::ReleaseComObject($link)
+   [void][Runtime.InteropServices.Marshal]::ReleaseComObject($shell)
+  }
+ }
+
+ # Nome apresentado nas configuracoes de notificacoes.
+ $registro = "HKCU:\Software\Classes\AppUserModelId\$appId"
+ New-Item -Path $registro -Force | Out-Null
+ New-ItemProperty -Path $registro -Name 'DisplayName' `
+  -Value 'Loudness Equalization' -PropertyType String -Force | Out-Null
+
+ Add-Type -AssemblyName System.Runtime.WindowsRuntime
+
+ [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+ [Windows.UI.Notifications.ToastNotification, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+ [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
+
+ $estado = 'OFF'
+ if ($ativado) { $estado = 'ON' }
+
+ $xml = New-Object Windows.Data.Xml.Dom.XmlDocument
+ $xml.LoadXml(@"
+<toast duration="short">
+ <visual>
+  <binding template="ToastGeneric">
+   <text>Loudness Equalization $estado</text>
+  </binding>
+ </visual>
+ <audio silent="true"/>
+</toast>
+"@)
+
+ $notificacao = [Windows.UI.Notifications.ToastNotification]::new($xml)
+ $notificacao.ExpirationTime = [DateTimeOffset]::Now.AddSeconds(10)
+ $emissor = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($appId)
+
+ $emissor.Show($notificacao)
+}
+
 $falha = $null
+$estadoNotificacao = $null
 $janela = $null
 $propriedades = $null
 $processo = $null
@@ -512,7 +649,8 @@ try {
   }
   Start-Sleep -Milliseconds 80
  }
- $propriedades = $null
+  $propriedades = $null
+ $estadoNotificacao = ($esperado -eq $On)
 }
 catch {
  $falha = $_.Exception.Message
@@ -537,4 +675,16 @@ if ($falha) {
  [System.Windows.Forms.MessageBox]::Show(
   $falha, 'Equalizacao de Intensidade', 'OK', 'Information'
  ) | Out-Null
+}
+
+if (-not $falha -and $null -ne $estadoNotificacao) {
+ try {
+  NotificarLoudness -ativado $estadoNotificacao
+ }
+ catch {
+  Write-Warning (
+   'A alteracao de audio foi concluida, mas a notificacao falhou: ' +
+   $_.Exception.Message
+  )
+ }
 }
