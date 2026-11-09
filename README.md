@@ -1,6 +1,6 @@
 This is a simple PowerShell script that toggles the Loudness Equalization option in Windows audio settings between ON and OFF.
 
-The script only works if your audio driver ***already includes*** the Loudness Equalizatoin option in there. You can verify by pressing Win + R, typing mmsys.cpl, double-clicking your audio playback device, and navigating to the Enhancements tab.
+The script only works if your audio driver ***already includes*** the Loudness Equalization option in there. You can verify by pressing Win + R, typing mmsys.cpl, double-clicking your audio playback device, and navigating to the Enhancements tab.
 
 I **HIGHLY SUGGEST** that you first set the Loudness Equalization **"Release Time"** option to ***Short*** in the "Settings..." button just above "Preview" while Loudness Equalization is highlighted.
 
