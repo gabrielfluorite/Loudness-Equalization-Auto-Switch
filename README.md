@@ -12,7 +12,7 @@ I **HIGHLY SUGGEST** that you first set the Loudness Equalization **"Release Tim
 
 ## **// Installation Instructions**
 
-Download the .zip file, extract it and keep both .ps1 and .cmd files together in the same folder. Simply double-click the .cmd file in order to run the script (it calls for the .ps1 file, which contains the script itself). You can create a shortcut of the .cmd file to your desktop and rename it if you wish.
+Download the **.zip** file, extract it and **keep both .ps1 and .cmd files together in the same folder**. Simply **double-click** the .cmd file in order to run the script (it calls for the .ps1 file, which contains the script itself). You can create a **shortcut** of the .cmd file to your desktop and **rename it** if you wish (and change the icon).
 
 **DO NOT CHANGE THE .ps1 FILE NAME and KEEP BOTH FILES TOGETHER IN THE SAME FOLDER.**
 
