@@ -1,4 +1,4 @@
-<img width="854" height="480" alt="Desktop 2026 11 13 - 21 (online-video-cutter com)" src="https://github.com/user-attachments/assets/b676f2bb-2b2c-4b48-8e68-0f867ab54ad6" />
+<img width="854" height="480" alt="Desktop 2026 11 13 - 21 (online-video-cutter com) (1)" src="https://github.com/user-attachments/assets/098c5291-2125-48c2-a8fe-c9851a28d1b4" />
 
 Demonstration of what the script does when you run it. *The icon was **manually** changed in the shortcut properties to one of the **standard** Windows icons.*
 
