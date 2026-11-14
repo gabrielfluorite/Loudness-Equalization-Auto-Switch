@@ -1,6 +1,6 @@
 <img width="854" height="480" alt="Desktop 2026 11 13 - 21 (online-video-cutter com) (2)" src="https://github.com/user-attachments/assets/e9af38d9-ace0-4d9f-b2a5-b92b26c2d0dc" />
 
-Demonstration of what the script does when you run it. *The icon was **manually** changed in the shortcut properties to one of the **standard** Windows icons.*
+Demonstration of what the script does when you run it. *The icon was **manually** changed in the shortcut properties to one of the **standard** Windows icons, it **does not** come configured by default.*
 
 ## **// Description**
 
