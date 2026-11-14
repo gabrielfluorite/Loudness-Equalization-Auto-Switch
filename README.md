@@ -1,3 +1,5 @@
+<img width="854" height="480" alt="Desktop 2026 11 13 - 21 (online-video-cutter com)" src="https://github.com/user-attachments/assets/b676f2bb-2b2c-4b48-8e68-0f867ab54ad6" />
+
 This is a simple PowerShell script that toggles the Loudness Equalization option in Windows audio settings between ON and OFF.
 
 The script only works if your audio driver ***already includes*** the Loudness Equalization option in there. You can verify by pressing Win + R, typing mmsys.cpl, double-clicking your audio playback device, and navigating to the Enhancements tab.
